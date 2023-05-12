@@ -1,0 +1,140 @@
+---
+title: "Preferences"
+---
+
+Use the Preferences API to make your extension configurable.
+
+Preferences are configured in the [manifest](/information/manifest#preference-properties) per command or shared in the context of an extension.
+
+Required preferences need to be set by the user before a command opens. They are a great way to make sure that the user of your extension has everything set up properly.
+
+## API Reference
+
+### getPreferenceValues
+
+A function to access the preference values that have been passed to the command.
+
+Each preference name is mapped to its value, and the defined default values are used as fallback values.
+
+#### Signature
+
+```
+function getPreferenceValues(): { [preferenceName: string]: any };
+```
+
+#### Example
+
+```
+import { getPreferenceValues } from "@raycast/api";
+
+interface Preferences {
+  name: string;
+  bodyWeight?: string;
+  bodyHeight?: string;
+}
+
+export default async function Command() {
+  const preferences = getPreferenceValues();
+  console.log(preferences);
+}
+```
+
+#### Return
+
+An object with the preference names as property key and the typed value as property value.
+
+Depending on the type of the preference, the type of its value will be different.
+
+| Preference type | Value type                                            |
+| --------------- | ----------------------------------------------------- |
+| textfield       | string                                                |
+| password        | string                                                |
+| checkbox        | boolean                                               |
+| dropdown        | string                                                |
+| appPicker       | [Application](/api-reference/utilities#application) |
+| file            | string                                                |
+| directory       | string                                                |
+
+### openExtensionPreferences
+
+Opens the extension's preferences screen.
+
+#### Signature
+
+```
+export declare function openExtensionPreferences(): Promise;
+```
+
+#### Example
+
+```
+import { ActionPanel, Action, Detail, openExtensionPreferences } from "@raycast/api";
+
+export default function Command() {
+  const markdown = "API key incorrect. Please update it in extension preferences and try again.";
+
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Return
+
+A Promise that resolves when the extensions preferences screen is opened.
+
+### openCommandPreferences
+
+Opens the command's preferences screen.
+
+#### Signature
+
+```
+export declare function openCommandPreferences(): Promise;
+```
+
+#### Example
+
+```
+import { ActionPanel, Action, Detail, openCommandPreferences } from "@raycast/api";
+
+export default function Command() {
+  const markdown = "API key incorrect. Please update it in command preferences and try again.";
+
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Return
+
+A Promise that resolves when the command's preferences screen is opened.
+
+## Types
+
+### Preferences
+
+A command receives the values of its preferences via the [getPreferenceValues](/api-reference/preferences#getpreferencevalues) function. It is an object with the preferences' `name` as keys and their values as the property's values.
+
+Depending on the type of the preference, the type of its value will be different.
+
+| Preference type | Value type                                            |
+| --------------- | ----------------------------------------------------- |
+| textfield       | string                                                |
+| password        | string                                                |
+| checkbox        | boolean                                               |
+| dropdown        | string                                                |
+| appPicker       | [Application](/api-reference/utilities#application) |
+| file            | string                                                |
+| directory       | string                                                |
+
+Raycast provides a global TypeScript namespace called `Preferences` which contains the types of the preferences of all the commands of the extensions.
+
+For example, if a command named `show-todos` has some preferences, its `getPreferenceValues`'s return type can be specified with `getPreferenceValues<Preferences.ShowTodos>()`. This will make sure that the types used in the command stay in sync with the manifest.

@@ -1,0 +1,342 @@
+---
+title: "Menu Bar Commands"
+---
+
+As of version 1.38.1, you can create Raycast commands that place glanceable information in your menu bar!
+
+The `MenuBarExtra` component can be used to create commands which populate the [extras](https://developer.apple.com/design/human-interface-guidelines/components/system-experiences/the-menu-bar#menu-bar-commands) section of macOS' menu bar.
+
+## Getting Started
+
+If you don't have an extension yet, follow the [getting started](/basics/getting-started) guide and then return to this page. Now that your extension is ready, let's open its `package.json` file and add a new entry to its `commands` array, ensuring its `mode` property is set to `menu-bar`. For this guide, let's add the following:
+
+```
+{
+  "name": "github-pull-requests",
+  "title": "Pull Requests",
+  "subtitle": "GitHub",
+  "description": "See your GitHub pull requests at a glance",
+  "mode": "menu-bar"
+},
+```
+
+Check out the [command properties entry](/information/manifest#command-properties) in the manifest file documentation for more detailed information on each of those properties.
+
+Create `github-pull-requests.tsx` in your extensions `src/` folder and add the following:
+
+```
+import { MenuBarExtra } from "@raycast/api";
+
+export default function Command() {
+  return (
+    
+      
+       {
+          console.log("seen pull request clicked");
+        }}
+      />
+      
+       {
+          console.log("unseen pull request clicked");
+        }}
+      />
+    
+  );
+}
+```
+
+If your development server is running, the command should appear in your root search, and running the command should result in the `GitHub` icon appearing in your menu bar.
+
+![](/images/api-reference/menu-bar-command.gif)
+
+GitHub Pull Requests menu bar command
+
+macOS has the final say on whether a given menu bar extra is displayed. If you have a lot of items there, it is possible that the command we just ran doesn't show up. If that's the case, try to clear up some space in the menu bar, either by closing some of the items you don't need or by hiding them using [HiddenBar](https://github.com/dwarvesf/hidden), [Bartender](https://www.macbartender.com/), or similar apps.
+
+Of course, our pull request command wouldn't be of that much use if we had to tell it to update itself every single time. To add [background refresh](/information/lifecycle/background-refresh) to our command, we need to open the `package.json` file we modified earlier and add an `interval` key to the command configuration object:
+
+```
+{
+  "name": "github-pull-requests",
+  "title": "Pull Requests",
+  "subtitle": "GitHub",
+  "description": "See your GitHub pull requests at a glance",
+  "mode": "menu-bar",
+  "interval": "5m"
+}
+```
+
+Your root search should look similar to:
+
+![](/images/api-reference/menu-bar-activate-command.png)
+
+Menu Bar Command - Activate Background Refresh
+
+Running it once should activate it to:
+
+![](/images/api-reference/menu-bar-refresh.png)
+
+Menu Bar Command - Refresh
+
+## Lifecycle
+
+Although `menu-bar` commands can result in items permanently showing up in the macOS menu bar, they are not long-lived processes. Instead, as with other commands, Raycast loads them into memory on demand, executes their code and then tries to unload them at the next convenient time. There are five distinct events that can result in a `menu-bar`'s item being placed in the menu bar, so let's walk through each one.
+
+### From the root search
+
+Same as any other commands, `menu-bar` commands can be run directly from Raycast's root search. Eventually, they may result in a new item showing up in your menu bar (if you have enough room and if the command returns a `MenuBarExtra`), or in a previous item disappearing, if the command returns `null`. In this case, Raycast will load your command code, execute it, wait for the `MenuBarExtra`'s `isLoading` prop to switch to `false`, and unload the command.
+
+If your command returns a `MenuBarExtra`, it _must_ either not set `isLoading` \- in which case Raycast will render and immediately unload the command, or set it to `true` while it's performing an async task (such as an API call) and then set it to `false` once it's done. Same as above, Raycast will load the command code, execute it, wait for `MenuBarExtra`'s `isLoading` prop to switch to `false`, and then unload the command.
+
+### At a set interval
+
+If your `menu-bar` command also makes use of [background refresh](/information/lifecycle/background-refresh) _and_ it has background refresh activated, Raycast will run the command at set intervals. In your command, you can use `environment.launchType` to check whether it is launched in the background or by the user.
+
+To ease testing, commands configured to run in the background have an extra action in development mode: 
+
+![Menu Bar Command - Run in Background](/images/api-reference/menu-bar-run-in-background.png)
+
+
+### When the user clicks the command's icon / title in the menu bar
+
+One of the bigger differences to `view` or `no-view` commands is that `menu-bar` commands have an additional entry point: when the user clicks their item in the menu bar. If the item has a menu (i.e. `MenuBarExtra` provides at least one child), Raycast will load the command code, execute it and keep it in memory while the menu is open. When the menu closes (either by the user clicking outside, or by clicking a `MenuBarExtra.Item`), the command is then unloaded.
+
+### When Raycast is restarted
+
+This case assumes that your command has run at least once, resulting in an item being placed in the menu bar. If that's the case, quitting and starting Raycast again should put the same item in your menu bar. However, that item will be restored from Raycast's database - _not_ by loading and executing the command.
+
+### When a menu bar command is re-enabled in preferences
+
+This case should work the same as when Raycast is restarted.
+
+## Best practices
+
+* make generous use of the [Cache API](/api-reference/cache) and our [Utilities](/utilities/getting-started) in order to provide quick feedback and ensure action handlers work as expected
+
+* make sure you set `isLoading` to false when your command finishes executing
+
+* avoid setting long titles in `MenuBarExtra`, `MenuBarExtra.Submenu` or `MenuBarExtra.Item`
+
+* don't put identical `MenuBarExtra.Item`s at the same level (direct children of `MenuBarExtra` or in the same `Submenu`) as their `onAction` handlers will not be executed correctly
+
+## API Reference
+
+### MenuBarExtra
+
+Adds an item to the menu bar, optionally with a menu attached in case its `children` prop is non-empty.
+
+`menu-bar` commands don't always need to return a `MenuBarExtra`. Sometimes it makes sense to remove an item from the menu bar, in which case you can write your command logic to return `null` instead.
+
+#### Example
+
+```
+import { Icon, MenuBarExtra, open } from "@raycast/api";
+
+const data = {
+  archivedBookmarks: [{ name: "Google Search", url: "www.google.com" }],
+  newBookmarks: [{ name: "Raycast", url: "www.raycast.com" }],
+};
+
+export default function Command() {
+  return (
+    
+      
+        {data?.newBookmarks.map((bookmark) => (
+           open(bookmark.url)} />
+        ))}
+      
+      
+        {data?.archivedBookmarks.map((bookmark) => (
+           open(bookmark.url)} />
+        ))}
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop      | Description                                                                                                                                                                                                                                                               | Type                                                                                | Default |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- |
+| children  | MenuBarExtra.Items, MenuBarExtra.Submenus, MenuBarExtra.Separator or a mix of either.                                                                                                                                                                                     | React.ReactNode                                                                     | \-      |
+| icon      | The icon that is displayed in the menu bar.                                                                                                                                                                                                                               | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-      |
+| isLoading | Indicates to Raycast that it should not unload the command, as it is still executing. If you set make use of isLoading, you need to make sure you set it to false at the end of the task you are executing (such as an API call), so Raycast can then unload the command. | boolean                                                                             | false   |
+| title     | The string that is displayed in the menu bar.                                                                                                                                                                                                                             | string                                                                              | \-      |
+| tooltip   | A tooltip to display when the cursor hovers the item in the menu bar.                                                                                                                                                                                                     | string                                                                              | \-      |
+
+### MenuBarExtra.Item
+
+An item in the [MenuBarExtra](/api-reference/menu-bar-commands#menubarextra) or in a [MenuBarExtra.Submenu](/api-reference/menu-bar-commands#menubarextra.submenu).
+
+#### Example
+
+ItemWithTitle.tsx
+
+ItemWithTitleAndIcon.tsx
+
+ItemWithAction.tsx
+
+An item that only provides a `title` prop will be rendered as disabled. Use this to create section titles.
+
+```
+import { Icon, MenuBarExtra } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+Similarly, an item that provides a `title` and an `icon` prop will also be rendered as disabled.
+
+```
+import { Icon, MenuBarExtra } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+An item that provides an `onAction` prop alongside `title` (and optionally `icon`) will _not_ be rendered as disabled. When users click this item in the menu bar, the action handler will be executed.
+
+```
+import { Icon, MenuBarExtra, open } from "@raycast/api";
+
+export default function Command() {
+  return (
+    
+       open("https://raycast.com")} />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                                       | Type                                                                                                   | Default |
+| -------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------- |
+| title\*  | The main title displayed for this item.                           | string                                                                                                 | \-      |
+| icon     | An optional icon for this item.                                   | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike)                    | \-      |
+| shortcut | A shortcut used to invoke this item when its parent menu is open. | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                                       | \-      |
+| subtitle | The subtitle displayed for this item.                             | string                                                                                                 | \-      |
+| tooltip  | A tooltip to display when the cursor hovers the item.             | string                                                                                                 | \-      |
+| onAction | An action handler called when the user clicks the item.           | (event: [MenuBarExtra.ActionEvent](/api-reference/menu-bar-commands#menubarextra.actionevent)) => void | \-      |
+
+### MenuBarExtra.Submenu
+
+`MenuBarExtra.Submenu`s reveal their items when people interact with them. They're a good way to group items that naturally belong together, but keep in mind that submenus add complexity to your interface - so use them sparingly!
+
+#### Example
+
+Bookmarks.tsx
+
+DisabledSubmenu.tsx
+
+```
+import { Icon, MenuBarExtra, open } from "@raycast/api";
+
+export default function Command() {
+  return (
+    
+       open("https://raycast.com")} />
+      
+         open("https://github.com/pulls")} />
+         open("https://github.com/issues")} />
+      
+    
+  );
+}
+```
+
+Submenus with no children will show up as disabled.
+
+```
+import { Icon, MenuBarExtra, open } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                                                           | Type                                                                                | Default |
+| -------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- |
+| title\*  | The main title displayed for this submenu.                                            | string                                                                              | \-      |
+| children | MenuBarExtra.Items, MenuBarExtra.Submenus, MenuBarExtra.Separator or a mix of either. | React.ReactNode                                                                     | \-      |
+| icon     | An optional icon for this submenu.                                                    | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-      |
+
+### MenuBarExtra.Section
+
+An item to group related menu items. It has an optional title and a separator is added automatically between sections.
+
+#### Example
+
+```
+import { Icon, MenuBarExtra, open } from "@raycast/api";
+
+const data = {
+  archivedBookmarks: [{ name: "Google Search", url: "www.google.com" }],
+  newBookmarks: [{ name: "Raycast", url: "www.raycast.com" }],
+};
+
+export default function Command() {
+  return (
+    
+      
+        {data?.newBookmarks.map((bookmark) => (
+           open(bookmark.url)} />
+        ))}
+      
+      
+        {data?.archivedBookmarks.map((bookmark) => (
+           open(bookmark.url)} />
+        ))}
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                       | Type            | Default |
+| -------- | --------------------------------- | --------------- | ------- |
+| children | The item elements of the section. | React.ReactNode | \-      |
+| title    | Title displayed above the section | string          | \-      |
+
+## Types
+
+### MenuBarExtra.ActionEvent
+
+An interface describing Action events in callbacks.
+
+#### Properties
+
+| Property | Description                | Type                          |
+| -------- | -------------------------- | ----------------------------- |
+| type\*   | A type of the action event | "left-click" or "right-click" |
+
+#### Example
+
+```
+import { MenuBarExtra } from "@raycast/api";
+
+export default function Command() {
+  return (
+    
+       console.log("Action Event Type", event.type)}
+      />
+    
+  );
+}
+```

@@ -1,0 +1,261 @@
+---
+title: "System Utilities"
+---
+
+This set of utilities exposes some of Raycast's native functionality to allow deep integration into the user's setup. For example, you can use the Application APIs to check if a desktop application is installed and then provide an action to deep-link into it.
+
+## API Reference
+
+### getApplications
+
+Returns all applications that can open the file.
+
+#### Signature
+
+```
+async function getApplications(path?: PathLike): Promise<application[]>;</application[]>
+```
+
+#### Example
+
+```
+import { getApplications } from "@raycast/api";
+
+export default async function Command() {
+  const installedApplications = await getApplications();
+  console.log("The following applications are installed on your Mac:");
+  console.log(installedApplications.map((a) => a.name).join(", "));
+}
+```
+
+#### Parameters
+
+| Name | Description                                                                                                                   | Type                                            |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| path | The path of the file or folder to get the applications for. If no path is specified, all installed applications are returned. | [PathLike](/api-reference/utilities#pathlike) |
+
+#### Return
+
+An array of [Application](/api-reference/utilities#application).
+
+### getDefaultApplication
+
+Returns the default application that the file would be opened with.
+
+#### Signature
+
+```
+async function getDefaultApplication(path: PathLike): Promise;
+```
+
+#### Example
+
+```
+import { getDefaultApplication } from "@raycast/api";
+
+export default async function Command() {
+  const defaultApplication = await getDefaultApplication(__filename);
+  console.log(`Default application for JavaScript is: ${defaultApplication.name}`);
+}
+```
+
+#### Parameters
+
+| Name   | Description                                                        | Type                                            |
+| ------ | ------------------------------------------------------------------ | ----------------------------------------------- |
+| path\* | The path of the file or folder to get the default application for. | [PathLike](/api-reference/utilities#pathlike) |
+
+#### Return
+
+A Promise that resolves with the default [Application](/api-reference/utilities#application) that would open the file. If no application was found, the promise will be rejected.
+
+### getFrontmostApplication
+
+Returns the frontmost application.
+
+#### Signature
+
+```
+async function getFrontmostApplication(): Promise;
+```
+
+#### Example
+
+```
+import { getFrontmostApplication } from "@raycast/api";
+
+export default async function Command() => {
+  const defaultApplication = await getFrontmostApplication();
+  console.log(`The frontmost application is: ${frontmostApplication.name}`);
+};
+```
+
+#### Return
+
+A Promise that resolves with the frontmost [Application](/api-reference/utilities#application). If no application was found, the promise will be rejected.
+
+### showInFinder
+
+Shows a file or directory in the Finder.
+
+#### Signature
+
+```
+async function showInFinder(path: PathLike): Promise;
+```
+
+#### Example
+
+```
+import { showInFinder } from "@raycast/api";
+import { homedir } from "os";
+import { join } from "path";
+
+export default async function Command() {
+  await showInFinder(join(homedir(), "Downloads"));
+}
+```
+
+#### Parameters
+
+| Name   | Description                     | Type                                            |
+| ------ | ------------------------------- | ----------------------------------------------- |
+| path\* | The path to show in the Finder. | [PathLike](/api-reference/utilities#pathlike) |
+
+#### Return
+
+A Promise that resolves when the item is revealed in the Finder.
+
+### trash
+
+Moves a file or directory to the Trash.
+
+#### Signature
+
+```
+async function trash(path: PathLike | PathLike[]): Promise;
+```
+
+#### Example
+
+```
+import { trash } from "@raycast/api";
+import { writeFile } from "fs/promises";
+import { homedir } from "os";
+import { join } from "path";
+
+export default async function Command() {
+  const file = join(homedir(), "Desktop", "yolo.txt");
+  await writeFile(file, "I will be deleted soon!");
+  await trash(file);
+}
+```
+
+#### Parameters
+
+| Name   | Description | Type                                                                                                |
+| ------ | ----------- | --------------------------------------------------------------------------------------------------- |
+| path\* |            | [PathLike](/api-reference/utilities#pathlike) or [PathLike](/api-reference/utilities#pathlike)\[\] |
+
+#### Return
+
+A Promise that resolves when all files are moved to the trash.
+
+### open
+
+Opens a target with the default application or specified application.
+
+#### Signature
+
+```
+async function open(target: string, application?: Application | string): Promise;
+```
+
+#### Example
+
+```
+import { open } from "@raycast/api";
+
+export default async function Command() {
+  await open("https://www.raycast.com", "com.google.Chrome");
+}
+```
+
+#### Parameters
+
+| Name        | Description                                                                                                                                                                                                                                                        | Type                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| target\*    | The file, folder or URL to open.                                                                                                                                                                                                                                   | string                                                         |
+| application | The application name to use for opening the file. If no application is specified, the default application as determined by the system is used to open the specified file. Note that you can use the application name, app identifier, or absolute path to the app. | string or [Application](/api-reference/utilities#application) |
+
+#### Return
+
+A Promise that resolves when the target has been opened.
+
+### launchCommand
+
+Launches another command of the same extension. If the command does not exist, or if it's not enabled, an error will be thrown. Use this method if your command needs to open another command based on user interaction, or when an immediate background refresh should be triggered, for example when a command needs to update an associated menu-bar command.
+
+#### Signature
+
+```
+async function launchCommand(options: {
+  name: string;
+  type: LaunchType;
+  arguments?: Arguments | null;
+  context?: LaunchContext | null;
+  fallbackText?: string | null;
+}): Promise;
+```
+
+#### Example
+
+```
+import { launchCommand, LaunchType } from "@raycast/api";
+
+export default async function Command() => {
+  await launchCommand({ name: "list", type: LaunchType.UserInitiated, context: { foo: "bar" } });
+};
+```
+
+#### Parameters
+
+| Name      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Type                                                      |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| options\* | A parameter object with the properties: name: command name as defined in the extension's manifest type: [LaunchType.UserInitiated](/api-reference/environment#launchtype) or [LaunchType.Background](/api-reference/environment#launchtype) arguments: optional object for the argument properties and values as defined in the extension's manifest, for example: { "argument1": "value1" } context: arbitrary object for custom data that should be passed to the command and accessible as environment.launchContext; the object must be JSON serializable (Dates and Buffers supported) | [LaunchOptions](/api-reference/utilities#launchoptions) |
+
+#### Return
+
+A Promise that resolves when the command has been launched. (Note that this does not indicate that the launched command has finished executing.)
+
+## Types
+
+### Application
+
+An object that represents a locally installed application on the system.
+
+It can be used to open files or folders in a specific application. Use [getApplications](/api-reference/utilities#getapplications) or [getDefaultApplication](/api-reference/utilities#getdefaultapplication) to get applications that can open a specific file or folder.
+
+#### Properties
+
+| Property | Description                                                                  | Type   |
+| -------- | ---------------------------------------------------------------------------- | ------ |
+| name\*   | The display name of the application.                                         | string |
+| path\*   | The absolute path to the application bundle, e.g. /Applications/Raycast.app, | string |
+| bundleId | The bundle identifier of the application, e.g. com.raycast.macos.            | string |
+
+### PathLike
+
+```
+PathLike: string | Buffer | URL;
+```
+
+Supported path types.
+
+### LaunchContext
+
+Represents the passed context object of programmatic command launches.
+
+### LaunchOptions
+
+A parameter object used to decide which command should be launched and what data (arguments, context) it should receive.
