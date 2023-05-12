@@ -1,0 +1,114 @@
+---
+title: "Colors"
+---
+
+Anywhere you can pass a color in a component prop, you can pass either:
+
+* A standard [Color](/api-reference/user-interface/colors#color)
+
+* A [Dynamic](/api-reference/user-interface/colors#color.dynamic) Color
+
+* A [Raw](/api-reference/user-interface/colors#color.raw) Color
+
+## API Reference
+
+### Color
+
+The standard colors. Use those colors for consistency.
+
+The colors automatically adapt to the Raycast theme (light or dark).
+
+#### Example
+
+```
+import { Color, Icon, List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+#### Enumeration members
+
+| Name          | Dark Theme                                                                                                                                                                                                                                                            | Light Theme                                                                                                                                                                                                                                                      |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Blue          | ![](/images/color-dark-blue.png)           | ![](/images/color-blue.png)           |
+| Green         | ![](/images/color-dark-green.png)          | ![](/images/color-green.png)          |
+| Magenta       | ![](/images/color-dark-magenta.png)        | ![](/images/color-magenta.png)        |
+| Orange        | ![](/images/color-dark-orange.png)         | ![](/images/color-orange.png)         |
+| Purple        | ![](/images/color-dark-purple.png)         | ![](/images/color-purple.png)         |
+| Red           | ![](/images/color-dark-red.png)            | ![](/images/color-red.png)            |
+| Yellow        | ![](/images/color-dark-yellow.png)         | ![](/images/color-yellow.png)         |
+| PrimaryText   | ![](/images/color-dark-primary-text.png)   | ![](/images/color-primary-text.png)   |
+| SecondaryText | ![](/images/color-dark-secondary-text.png) | ![](/images/color-secondary-text.png) |
+
+## Types
+
+### Color.ColorLike
+
+```
+ColorLike: Color | Color.Dynamic | Color.Raw;
+```
+
+Union type for the supported color types.
+
+When using a [Raw Color](/api-reference/user-interface/colors#color.raw), it will be adjusted to achieve high contrast with the Raycast user interface. To disable color adjustment, you need to switch to using a [Dynamic Color](/api-reference/user-interface/colors#color.dynamic). However, we recommend leaving color adjustment on, unless your extension depends on exact color reproduction.
+
+#### Example
+
+```
+import { Color, Icon, List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+### Color.Dynamic
+
+A dynamic color applies different colors depending on the active Raycast theme.
+
+When using a [Dynamic Color](/api-reference/user-interface/colors#color.dynamic), it will be adjusted to achieve high contrast with the Raycast user interface. To disable color adjustment, you can set the `adjustContrast` property to `false`. However, we recommend leaving color adjustment on, unless your extension depends on exact color reproduction.
+
+#### Example
+
+```
+import { Icon, List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+#### Properties
+
+| Property       | Description                                                         | Type    |
+| -------------- | ------------------------------------------------------------------- | ------- |
+| dark\*         | The color which is used in dark theme.                              | string  |
+| light\*        | The color which is used in light theme.                             | string  |
+| adjustContrast | Enables dynamic contrast adjustment for light and dark theme color. | boolean |
+
+### Color.Raw
+
+A color can also be a simple string. You can use any of the following color formats:
+
+* HEX, e.g `#FF0000`
+
+* Short HEX, e.g. `#F00`
+
+* RGBA, e.g. `rgb(255, 0, 0)`
+
+* RGBA Percentage, e.g. `rgb(255, 0, 0, 1.0)`
+
+* HSL, e.g. `hsla(200, 20%, 33%, 0.2)`
+
+* Keywords, e.g. `red`

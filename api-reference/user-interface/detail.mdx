@@ -1,0 +1,244 @@
+---
+title: "Detail"
+---
+
+![](/images/detail.png)
+
+## API Reference
+
+### Detail
+
+Renders a markdown ([CommonMark](https://commonmark.org)) string with an optional metadata panel.
+
+Typically used as a standalone view or when navigating from a [List](/api-reference/user-interface/list).
+
+#### Example
+
+Render a markdown string
+
+Render an image from the assets directory
+
+```
+import { Detail } from "@raycast/api";
+
+export default function Command() {
+  return ;
+}
+```
+
+```
+import { Detail } from "@raycast/api";
+
+export default function Command() {
+  return ;
+}
+```
+
+#### Props
+
+| Prop            | Description                                                                              | Type            | Default       |
+| --------------- | ---------------------------------------------------------------------------------------- | --------------- | ------------- |
+| actions         | A reference to an [ActionPanel](/api-reference/user-interface/action-panel#actionpanel). | React.ReactNode | \-            |
+| isLoading       | Indicates whether a loading bar should be shown or hidden below the search bar           | boolean         | false         |
+| markdown        | The CommonMark string to be rendered.                                                    | string          | \-            |
+| metadata        | The Detail.Metadata to be rendered in the right side area                                | React.ReactNode | \-            |
+| navigationTitle | The main title for that view displayed in Raycast                                        | string          | Command title |
+
+### Detail.Metadata
+
+A Metadata view that will be shown in the right-hand-side of the `Detail`.
+
+Use it to display additional structured data about the main content shown in the `Detail` view.
+
+![](/images/detail-metadata.png)
+
+Detail-metadata illustration
+
+#### Example
+
+```
+import { Detail } from "@raycast/api";
+
+// Define markdown here to prevent unwanted indentation.
+const markdown = `
+# Pikachu
+
+![](https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png)
+
+Pikachu that can generate powerful electricity have cheek sacs that are extra soft and super stretchy.
+`;
+
+export default function Main() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop       | Description                        | Type            | Default |
+| ---------- | ---------------------------------- | --------------- | ------- |
+| children\* | The elements of the Metadata view. | React.ReactNode | \-      |
+
+### Detail.Metadata.Label
+
+A single value with an optional icon.
+
+![](/images/detail-metadata-label.png)
+
+Detail-metadata-label illustration
+
+#### Example
+
+```
+import { Detail } from "@raycast/api";
+
+// Define markdown here to prevent unwanted indentation.
+const markdown = `
+# Pikachu
+
+![](https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png)
+
+Pikachu that can generate powerful electricity have cheek sacs that are extra soft and super stretchy.
+`;
+
+export default function Main() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop    | Description                                                                                                                                                              | Type                                                                                    | Default |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ------- |
+| title\* | The title of the item.                                                                                                                                                   | string                                                                                  | \-      |
+| icon    | An icon to illustrate the value of the item.                                                                                                                             | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike)     | \-      |
+| text    | The text value of the item. Specifying color will display the text in the provided color. Defaults to [Color.SecondaryText](/api-reference/user-interface/colors#color). | string or { color: [Color](/api-reference/user-interface/colors#color); value: string } | \-      |
+
+### Detail.Metadata.Link
+
+An item to display a link.
+
+![](/images/detail-metadata-link.png)
+
+Detail-metadata-link illustration
+
+#### Example
+
+```
+import { Detail } from "@raycast/api";
+
+// Define markdown here to prevent unwanted indentation.
+const markdown = `
+# Pikachu
+
+![](https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png)
+
+Pikachu that can generate powerful electricity have cheek sacs that are extra soft and super stretchy.
+`;
+
+export default function Main() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                     | Type   | Default |
+| -------- | ------------------------------- | ------ | ------- |
+| target\* | The target of the link.         | string | \-      |
+| text\*   | The text value of the item.     | string | \-      |
+| title\*  | The title shown above the item. | string | \-      |
+
+### Detail.Metadata.TagList
+
+A list of [Tags](/api-reference/user-interface/detail#detail.metadata.taglist.item) displayed in a row.
+
+![](/images/detail-metadata-taglist.png)
+
+Detail-metadata-taglist illustration
+
+#### Example
+
+```
+import { Detail } from "@raycast/api";
+
+// Define markdown here to prevent unwanted indentation.
+const markdown = `
+# Pikachu
+
+![](https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png)
+
+Pikachu that can generate powerful electricity have cheek sacs that are extra soft and super stretchy.
+`;
+
+export default function Main() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop       | Description                        | Type            | Default |
+| ---------- | ---------------------------------- | --------------- | ------- |
+| children\* | The tags contained in the TagList. | React.ReactNode | \-      |
+| title\*    | The title shown above the item.    | string          | \-      |
+
+### Detail.Metadata.TagList.Item
+
+A Tag in a `Detail.Metadata.TagList`.
+
+#### Props
+
+| Prop   | Description                                                                                         | Type                                                                                | Default |
+| ------ | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- |
+| text\* | The text of the tag.                                                                                | string                                                                              | \-      |
+| color  | Changes the text color to the provided color and sets a transparent background with the same color. | [Color.ColorLike](/api-reference/user-interface/colors#color.colorlike)           | \-      |
+| icon   | An optional icon in front of the text of the tag.                                                   | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-      |
+
+### Detail.Metadata.Separator
+
+A metadata item that shows a separator line. Use it for grouping and visually separating metadata items.
+
+![](/images/detail-metadata-separator.png)
+
+```
+import { Detail } from "@raycast/api";
+
+// Define markdown here to prevent unwanted indentation.
+const markdown = `
+# Pikachu
+
+![](https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png)
+
+Pikachu that can generate powerful electricity have cheek sacs that are extra soft and super stretchy.
+`;
+
+export default function Main() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```

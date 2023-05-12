@@ -1,0 +1,491 @@
+---
+title: "Actions"
+---
+
+Our API includes a few built-in actions that can be used for common interactions, such as opening a link or copying some content to the clipboard. By using them, you make sure to follow our human interface guidelines. If you need something custom, use the [Action](/api-reference/user-interface/actions#action) component. All built-in actions are just abstractions on top of it.
+
+## API Reference
+
+### Action
+
+A context-specific action that can be performed by the user.
+
+Assign keyboard shortcuts to items to make it easier for users to perform frequently used actions.
+
+#### Example
+
+```
+import { ActionPanel, Action, List } from "@raycast/api";
+
+export default function Command() {
+  return (
+            
+            
+             console.log("Close PR #1")} />
+          
+        }
+      />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop      | Description                                                                                                              | Type                                                                                | Default                                                                      |
+| --------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| title\*   | The title displayed for the Action.                                                                                      | string                                                                              | \-                                                                           |
+| autoFocus | Indicates whether the Action should be focused automatically when the parent ActionPanel (or Actionpanel.Submenu) opens. | boolean                                                                             | \-                                                                           |
+| icon      | The icon displayed for the Action.                                                                                       | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-                                                                           |
+| shortcut  | The keyboard shortcut for the Action.                                                                                    | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-                                                                           |
+| style     | Defines the visual style of the Action.                                                                                  | [Alert.ActionStyle](/api-reference/feedback/alert#alert.actionstyle)              | [Action.Style.Regular](/api-reference/user-interface/actions#action.style) |
+| onAction  | Callback that is triggered when the Action is selected.                                                                  | () => void                                                                          | \-                                                                           |
+
+### Action.CopyToClipboard
+
+Action that copies the content to the clipboard.
+
+The main window is closed, and a HUD is shown after the content was copied to the clipboard.
+
+#### Example
+
+```
+import { ActionPanel, Action, Detail } from "@raycast/api";
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop      | Description                                                                         | Type                                                                                 | Default                                                                  |    |
+| --------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | -- |
+| content\* | The contents that will be copied to the clipboard.                                  | string or number or [Clipboard.Content](/api-reference/clipboard#clipboard.content) | \-                                                                       |    |
+| icon      | A optional icon displayed for the Action.                                           | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike)  | [Icon.Clipboard](/api-reference/user-interface/icons-and-images#icon)  |    |
+| shortcut  | The keyboard shortcut for the Action.                                               | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                     | \-                                                                       |    |
+| title     | An optional title for the Action.                                                   | string                                                                               | "Copy to Clipboard"                                                      |    |
+| transient | Indicates whether the content should be copied to the clipboard temporarily or not. | boolean                                                                              | false                                                                    |    |
+| onCopy    | Callback when the content was copied to clipboard.                                  | (content: string \| number                                                           | [Clipboard.Content](/api-reference/clipboard#clipboard.content)) => void | \- |
+
+### Action.Open
+
+An action to open a file or folder with a specific application, just as if you had double-clicked the file's icon.
+
+The main window is closed after the file is opened.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop        | Description                                       | Type                                                                                | Default                                                              |
+| ----------- | ------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| target\*    | The file, folder or URL to open.                  | string                                                                              | \-                                                                   |
+| title\*     | The title for the Action.                         | string                                                                              | \-                                                                   |
+| application | The application name to use for opening the file. | string or [Application](/api-reference/utilities#application)                      | \-                                                                   |
+| icon        | The icon displayed for the Action.                | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | [Icon.Finder](/api-reference/user-interface/icons-and-images#icon) |
+| shortcut    | The keyboard shortcut for the Action.             | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-                                                                   |
+| onOpen      | Callback when the file or folder was opened.      | (target: string) => void                                                            | \-                                                                   |
+
+### Action.OpenInBrowser
+
+Action that opens a URL in the default browser.
+
+The main window is closed after the URL is opened in the browser.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                      | Type                                                                                | Default                                                             |
+| -------- | ------------------------------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| url\*    | The URL to open.                                 | string                                                                              | \-                                                                  |
+| icon     | The icon displayed for the Action.               | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | [Icon.Globe](/api-reference/user-interface/icons-and-images#icon) |
+| shortcut | The optional keyboard shortcut for the Action.   | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-                                                                  |
+| title    | An optional title for the Action.                | string                                                                              | "Open in Browser"                                                   |
+| onOpen   | Callback when the URL was opened in the browser. | (url: string) => void                                                               | \-                                                                  |
+
+### Action.OpenWith
+
+Action that opens a file or folder with a specific application.
+
+The action opens a sub-menu with all applications that can open the file or folder. The main window is closed after the file is opened in the specified application.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+import { homedir } from "os";
+
+const DESKTOP_DIR = `${homedir()}/Desktop`;
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                  | Type                                                                                | Default                                                              |
+| -------- | -------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| path\*   | The path to open.                            | string                                                                              | \-                                                                   |
+| icon     | The icon displayed for the Action.           | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | [Icon.Upload](/api-reference/user-interface/icons-and-images#icon) |
+| shortcut | The keyboard shortcut for the Action.        | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-                                                                   |
+| title    | The title for the Action.                    | string                                                                              | "Open With"                                                          |
+| onOpen   | Callback when the file or folder was opened. | (path: string) => void                                                              | \-                                                                   |
+
+### Action.Paste
+
+Action that pastes the content to the front-most applications.
+
+The main window is closed after the content is pasted to the front-most application.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop      | Description                                                           | Type                                                                                 | Default                                                                  |    |
+| --------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | -- |
+| content\* | The contents that will be pasted to the frontmost application.        | string or number or [Clipboard.Content](/api-reference/clipboard#clipboard.content) | \-                                                                       |    |
+| icon      | The icon displayed for the Action.                                    | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike)  | [Icon.Clipboard](/api-reference/user-interface/icons-and-images#icon)  |    |
+| shortcut  | The keyboard shortcut for the Action.                                 | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                     | \-                                                                       |    |
+| title     | An optional title for the Action.                                     | string                                                                               | "Paste in Active App"                                                    |    |
+| onPaste   | Callback when the content was pasted into the front-most application. | (content: string \| number                                                           | [Clipboard.Content](/api-reference/clipboard#clipboard.content)) => void | \- |
+
+### Action.Push
+
+Action that pushes a new view to the navigation stack.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+
+function Ping() {
+  return (
+    
+          } />
+        
+      }
+    />
+  );
+}
+
+function Pong() {
+  return ;
+}
+
+export default function Command() {
+  return ;
+}
+```
+
+#### Props
+
+| Prop     | Description                                                  | Type                                                                                | Default |
+| -------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ------- |
+| target\* | The target view that will be pushed to the navigation stack. | React.ReactNode                                                                     | \-      |
+| title\*  | The title displayed for the Action.                          | string                                                                              | \-      |
+| icon     | The icon displayed for the Action.                           | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-      |
+| shortcut | The keyboard shortcut for the Action.                        | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-      |
+| onPush   | Callback when the target view was pushed.                    | () => void                                                                          | \-      |
+
+### Action.ShowInFinder
+
+Action that shows a file or folder in the Finder.
+
+The main window is closed after the file or folder is revealed in the Finder.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+import { homedir } from "os";
+
+const DOWNLOADS_DIR = `${homedir()}/Downloads`;
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                               | Type                                                                                | Default                                                              |
+| -------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| path\*   | The path to open.                                         | [PathLike](/api-reference/utilities#pathlike)                                     | \-                                                                   |
+| icon     | A optional icon displayed for the Action.                 | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | [Icon.Finder](/api-reference/user-interface/icons-and-images#icon) |
+| shortcut | The keyboard shortcut for the Action.                     | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-                                                                   |
+| title    | An optional title for the Action.                         | string                                                                              | "Show in Finder"                                                     |
+| onShow   | Callback when the file or folder was shown in the Finder. | (path: [PathLike](/api-reference/utilities#pathlike)) => void                       | \-                                                                   |
+
+### Action.SubmitForm
+
+Action that adds a submit handler for capturing form values.
+
+#### Example
+
+```
+import { ActionPanel, Form, Action } from "@raycast/api";
+
+export default function Command() {
+  return (
+    
+
+           console.log(values)} />
+        
+      }
+    >
+    
+
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                                                                               | Type                                                                                      | Default         |       |    |
+| -------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------- | ----- | -- |
+| icon     | The icon displayed for the Action.                                                                        | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike)       | \-              |       |    |
+| shortcut | The keyboard shortcut for the Action.                                                                     | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                          | \-              |       |    |
+| title    | The title displayed for the Action.                                                                       | string                                                                                    | "Submit Form"   |       |    |
+| onSubmit | Callback when the Form was submitted. The handler receives a the values object containing the user input. | (input: [Form.Values](/api-reference/user-interface/form#form.values)) => boolean \| void | Promise<boolean | void> | \- |
+
+### Action.Trash
+
+Action that moves a file or folder to the Trash.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+import { homedir } from "os";
+
+const FILE = `${homedir()}/Downloads/get-rid-of-me.txt`;
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                      | Type                                                                                                                | Default                                                             |
+| -------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| paths\*  | The item or items to move to the trash.          | [PathLike](/api-reference/utilities#pathlike) or [PathLike](/api-reference/utilities#pathlike)\[\]                 | \-                                                                  |
+| icon     | A optional icon displayed for the Action.        | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike)                                 | [Icon.Trash](/api-reference/user-interface/icons-and-images#icon) |
+| shortcut | The optional keyboard shortcut for the Action.   | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                                                    | \-                                                                  |
+| title    | An optional title for the Action.                | string                                                                                                              | "Move to Trash"                                                     |
+| onTrash  | Callback when all items were moved to the trash. | (paths: [PathLike](/api-reference/utilities#pathlike) \| [PathLike](/api-reference/utilities#pathlike)\[\]) => void | \-                                                                  |
+
+### Action.CreateSnippet
+
+Action that navigates to the the Create Snippet command with some or all of the fields prefilled.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop      | Description                                                                                                                                                          | Type                                                                                | Default |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- |
+| snippet\* |                                                                                                                                                                     | [Snippet](/api-reference/user-interface/actions#snippet)                          | \-      |
+| icon      | A optional icon displayed for the Action. See [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) for the supported formats and types. | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-      |
+| shortcut  | The keyboard shortcut for the Action.                                                                                                                                | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-      |
+| title     | An optional title for the Action.                                                                                                                                    | string                                                                              | \-      |
+
+### Action.CreateQuicklink
+
+Action that navigates to the the Create Quicklink command with some or all of the fields prefilled.
+
+#### Example
+
+```
+import { ActionPanel, Detail, Action } from "@raycast/api";
+
+export default function Command() {
+  return (
+          
+        
+      }
+    />
+  );
+}
+```
+
+#### Props
+
+| Prop        | Description                                                                                                                                                          | Type                                                                                | Default |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- |
+| quicklink\* | The [Quicklink](/api-reference/user-interface/actions#quicklink) to create.                                                                                          | [Quicklink](/api-reference/user-interface/actions#quicklink)                      | \-      |
+| icon        | A optional icon displayed for the Action. See [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) for the supported formats and types. | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-      |
+| shortcut    | The keyboard shortcut for the Action.                                                                                                                                | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-      |
+| title       | An optional title for the Action.                                                                                                                                    | string                                                                              | \-      |
+
+### Action.ToggleQuickLook
+
+Action that toggles the Quick Look to preview a file.
+
+#### Example
+
+```
+import { ActionPanel, List, Action } from "@raycast/api";
+
+export default function Command() {
+  return (
+            
+          
+        }
+      />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                           | Type                                                                                | Default                                                           |
+| -------- | ------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| icon     | The icon displayed for the Action.    | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | [Icon.Eye](/api-reference/user-interface/icons-and-images#icon) |
+| shortcut | The keyboard shortcut for the Action. | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                    | \-                                                                |
+| title    | The title for the Action.             | string                                                                              | "Quick Look"                                                      |
+
+### Action.PickDate
+
+Action to pick a date.
+
+#### Example
+
+```
+import { ActionPanel, List, Action } from "@raycast/api";
+
+export default function Command() {
+  return (
+            
+          
+        }
+      />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop       | Description                                           | Type                                                                                 | Default                                                                |
+| ---------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| title\*    | A title for the Action.                               | string                                                                               | \-                                                                     |
+| onChange\* | Callback when the Date was picked                     | (date: Date) => void                                                                 | \-                                                                     |
+| icon       | A optional icon displayed for the Action.             | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike)  | [Icon.Calendar](/api-reference/user-interface/icons-and-images#icon) |
+| shortcut   | The keyboard shortcut for the Action.                 | [Keyboard.Shortcut](/api-reference/keyboard#keyboard.shortcut)                     | \-                                                                     |
+| type       | Indicates what types of date components can be picked | [Action.PickDate.Type](/api-reference/user-interface/actions#action.pickdate.type) | \-                                                                     |
+
+## Types
+
+### Snippet
+
+#### Properties
+
+| Property | Description                         | Type   |
+| -------- | ----------------------------------- | ------ |
+| text\*   | The snippet contents.               | string |
+| keyword  | The keyword to trigger the snippet. | string |
+| name     | The snippet name.                   | string |
+
+### Quicklink
+
+#### Properties
+
+| Property    | Description                                                                                              | Type                                                           |
+| ----------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| link\*      | The URL or file path, optionally including placeholders such as in "https://google.com/search?q={Query}" | string                                                         |
+| application | The application that the quicklink should be opened in.                                                  | string or [Application](/api-reference/utilities#application) |
+| name        | The quicklink name                                                                                       | string                                                         |
+
+### Action.Style
+
+Defines the visual style of the Action.
+
+Use [Action.Style.Regular](/api-reference/user-interface/actions#action.style) for displaying a regular actions. Use [Action.Style.Destructive](/api-reference/user-interface/actions#action.style) when your action has something that user should be careful about. Use the confirmation [Alert](/api-reference/feedback/alert) if the action is doing something that user cannot revert.
+
+### Action.PickDate.Type
+
+The types of date components the user can pick with an `Action.PickDate`.
+
+#### Enumeration members
+
+| Name     | Description                                                      |
+| -------- | ---------------------------------------------------------------- |
+| DateTime | Hour and second can be picked in addition to year, month and day |
+| Date     | Only year, month, and day can be picked                          |

@@ -1,0 +1,761 @@
+---
+title: "List"
+description: "The de-facto user interface in Raycast. Ideal to present similar data such as to-dos or files."
+---
+
+Our `List` component provides great user experience out of the box:
+
+* Use built-in filtering for best performance.
+
+* Group-related items in sections with titles and subtitles.
+
+* Show loading indicator for longer operations.
+
+* Use the search query for typeahead experiences, optionally throttled.
+
+![](/images/list.png)
+
+## Search Bar
+
+The search bar allows users to interact quickly with list items. By default, [List.Items](/api-reference/user-interface/list#list.item) are displayed if the user's input can be (fuzzy) matched to the item's `title` or `keywords`.
+
+### Custom filtering
+
+Sometimes, you may not want to rely on Raycast's filtering, but use/implement your own. If that's the case, you can set the `List`'s `filtering` [prop](/api-reference/user-interface/list#props) to false, and the items displayed will be independent of the search bar's text. Note that `filtering` is also implicitly set to false if an `onSearchTextChange` listener is specified. If you want to specify a change listener and _still_ take advantage of Raycast's built-in filtering, you can explicitly set `filtering` to true.
+
+```
+import { useEffect, useState } from "react";
+import { Action, ActionPanel, List } from "@raycast/api";
+
+const items = ["Augustiner Helles", "Camden Hells", "Leffe Blonde", "Sierra Nevada IPA"];
+
+export default function Command() {
+  const [searchText, setSearchText] = useState("");
+  const [filteredList, filterList] = useState(items);
+
+  useEffect(() => {
+    filterList(items.filter((item) => item.includes(searchText)));
+  }, [searchText]);
+
+  return (
+    
+      {filteredList.map((item) => (
+        
+               console.log(`${item} selected`)} />
+            
+          }
+        />
+      ))}
+    
+  );
+}
+```
+
+### Programmatically updating the search bar
+
+Other times, you may want the content of the search bar to be updated by the extension, for example, you may store a list of the user's previous searches and, on the next visit, allow them to "continue" where they left off.
+
+To do so, you can use the `searchText` [prop](/api-reference/user-interface/list#props).
+
+```
+import { useEffect, useState } from "react";
+import { Action, ActionPanel, List } from "@raycast/api";
+
+const items = ["Augustiner Helles", "Camden Hells", "Leffe Blonde", "Sierra Nevada IPA"];
+
+export default function Command() {
+  const [searchText, setSearchText] = useState("");
+
+  return (
+    
+      {items.map((item) => (
+        
+               setSearchText(item)} />
+            
+          }
+        />
+      ))}
+    
+  );
+}
+```
+
+### Dropdown
+
+Some extensions may benefit from giving users a second filtering dimension. A todo extension may allow users to use different groups, a newspaper-reading extension may want to allow quickly switching categories, etc.
+
+This is where the `searchBarAccessory` [prop](/api-reference/user-interface/list#props) is useful. Pass it a [List.Dropdown](/api-reference/user-interface/list#list.dropdown) component, and it will be displayed on the right-side of the search bar. Invoke it either by using the global shortcut `⌘` `P` or by clicking on it.
+
+## Examples
+
+List.tsx
+
+ListWithSections.tsx
+
+ListWithActions.tsx
+
+ListWithDetail.tsx
+
+ListWithEmptyView.tsx
+
+```
+import { List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+```
+import { List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+```
+import { ActionPanel, Action, List } from "@raycast/api";
+
+export default function Command() {
+  return (
+            
+          
+        }
+      />
+    
+  );
+}
+```
+
+```
+import { useState } from "react";
+import { Action, ActionPanel, List } from "@raycast/api";
+import { useCachedPromise } from "@raycast/utils";
+
+interface Pokemon {
+  name: string;
+  height: number;
+  weight: number;
+  id: string;
+  types: string[];
+  abilities: Array<{ name: string; ismainseries: boolean }>;
+}
+
+const pokemons: Pokemon[] = [
+  {
+    name: "bulbasaur",
+    height: 7,
+    weight: 69,
+    id: "001",
+    types: ["Grass", "Poison"],
+    abilities: [
+      { name: "Chlorophyll", isMainSeries: true },
+      { name: "Overgrow", isMainSeries: true },
+    ],
+  },
+  {
+    name: "ivysaur",
+    height: 10,
+    weight: 130,
+    id: "002",
+    types: ["Grass", "Poison"],
+    abilities: [
+      { name: "Chlorophyll", isMainSeries: true },
+      { name: "Overgrow", isMainSeries: true },
+    ],
+  },
+];
+
+export default function Command() {
+  const [showingDetail, setShowingDetail] = useState(true);
+  const { data, isLoading } = useCachedPromise(() => new Promise<pokemon[]>((resolve) => resolve(pokemons)));
+
+  return (
+    
+      {data &&
+        data.map((pokemon) => {
+          const props: Partial = showingDetail
+            ? {
+                detail: (
+                  
+                ),
+              }
+            : { accessories: [{ text: pokemon.types.join(" ") }] };
+          return (
+            
+                  
+                   setShowingDetail(!showingDetail)} />
+                
+              }
+            />
+          );
+        })}
+    
+  );
+}
+</pokemon[]></{>
+```
+
+```
+import { useEffect, useState } from "react";
+import { List } from "@raycast/api";
+
+export default function CommandWithCustomEmptyView() {
+  const [state, setState] = useState({ searchText: "", items: [] });
+
+  useEffect(() => {
+    // perform an API call that eventually populates `items`.
+  }, [state.searchText]);
+
+  return (
+     setState((previous) => ({ ...previous, searchText: newValue }))}>
+      {state.searchText === "" && state.items.length === 0 ? (
+        
+      ) : (
+        state.items.map((item) => )
+      )}
+    
+  );
+}
+```
+
+## API Reference
+
+### List
+
+Displays [List.Section](/api-reference/user-interface/list#list.section) or [List.Item](/api-reference/user-interface/list#list.item).
+
+The list uses built-in filtering by indexing the title of list items and additionally keywords.
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop                 | Description                                                                                                                                                                                                                                            | Type                                                                                  | Default                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| actions              | A reference to an [ActionPanel](/api-reference/user-interface/action-panel#actionpanel). It will only be shown when there aren't any children.                                                                                                         | React.ReactNode                                                                       | \-                                                          |
+| children             | List sections or items. If [List.Item](/api-reference/user-interface/list#list.item) elements are specified, a default section is automatically created.                                                                                               | React.ReactNode                                                                       | \-                                                          |
+| filtering            | Toggles Raycast filtering. When true, Raycast will use the query in the search bar to filter the items. When false, the extension needs to take care of the filtering.                                                                                 | boolean or { keepSectionOrder: boolean }                                              | false when onSearchTextChange is specified, true otherwise. |
+| isLoading            | Indicates whether a loading bar should be shown or hidden below the search bar                                                                                                                                                                         | boolean                                                                               | false                                                       |
+| isShowingDetail      | Whether the List should have an area on the right side of the items to show additional details about the selected item.                                                                                                                                | boolean                                                                               | \-                                                          |
+| navigationTitle      | The main title for that view displayed in Raycast                                                                                                                                                                                                      | string                                                                                | Command title                                               |
+| searchBarAccessory   | [List.Dropdown](/api-reference/user-interface/list#list.dropdown) that will be shown in the right-hand-side of the search bar.                                                                                                                        | ReactElement<[List.Dropdown.Props](/api-reference/user-interface/list#props), string> | \-                                                          |
+| searchBarPlaceholder | Placeholder text that will be shown in the search bar.                                                                                                                                                                                                 | string                                                                                | "Search…"                                                   |
+| searchText           | The text that will be displayed in the search bar.                                                                                                                                                                                                     | string                                                                                | \-                                                          |
+| selectedItemId       | Selects the item with the specified id.                                                                                                                                                                                                                | string                                                                                | \-                                                          |
+| throttle             | Defines whether the onSearchTextChange handler will be triggered on every keyboard press or with a delay for throttling the events. Recommended to set to true when using custom filtering logic with asynchronous operations (e.g. network requests). | boolean                                                                               | false                                                       |
+| onSearchTextChange   | Callback triggered when the search bar text changes.                                                                                                                                                                                                   | (text: string) => void                                                                | \-                                                          |
+| onSelectionChange    | Callback triggered when the item selection in the list changes.                                                                                                                                                                                        | (id: string) => void                                                                  | \-                                                          |
+
+### List.Dropdown
+
+A dropdown menu that will be shown in the right-hand-side of the search bar.
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+type DrinkType = { id: string; name: string };
+
+function DrinkDropdown(props: { drinkTypes: DrinkType[]; onDrinkTypeChange: (newValue: string) => void }) {
+  const { drinkTypes, onDrinkTypeChange } = props;
+  return (
+     {
+        onDrinkTypeChange(newValue);
+      }}
+    >
+      
+        {drinkTypes.map((drinkType) => (
+          
+        ))}
+      
+    
+  );
+}
+
+export default function Command() {
+  const drinkTypes: DrinkType[] = [
+    { id: "1", name: "Beer" },
+    { id: "2", name: "Wine" },
+  ];
+  const onDrinkTypeChange = (newValue: string) => {
+    console.log(newValue);
+  };
+  return (
+    }
+    >
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop               | Description                                                                                                                                                                                                                                            | Type                                     | Default                                                     |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- | ----------------------------------------------------------- |
+| tooltip\*          | Tooltip displayed when hovering the dropdown.                                                                                                                                                                                                          | string                                   | \-                                                          |
+| children           | Dropdown sections or items. If Dropdown.Item elements are specified, a default section is automatically created.                                                                                                                                       | React.ReactNode                          | \-                                                          |
+| defaultValue       | The default value of the dropdown. Keep in mind that defaultValue will be configured once per component lifecycle. This means that if a user changes the value, defaultValue won't be configured on re-rendering.                                      | string                                   | \-                                                          |
+| filtering          | Toggles Raycast filtering. When true, Raycast will use the query in the search bar to filter the items. When false, the extension needs to take care of the filtering.                                                                                 | boolean or { keepSectionOrder: boolean } | false when onSearchTextChange is specified, true otherwise. |
+| id                 | ID of the dropdown.                                                                                                                                                                                                                                    | string                                   | \-                                                          |
+| isLoading          | Indicates whether a loading indicator should be shown or hidden next to the search bar                                                                                                                                                                 | boolean                                  | false                                                       |
+| placeholder        | Placeholder text that will be shown in the dropdown search field.                                                                                                                                                                                      | string                                   | "Search…"                                                   |
+| storeValue         | Indicates whether the value of the dropdown should be persisted after selection, and restored next time the dropdown is rendered.                                                                                                                      | boolean                                  | \-                                                          |
+| throttle           | Defines whether the onSearchTextChange handler will be triggered on every keyboard press or with a delay for throttling the events. Recommended to set to true when using custom filtering logic with asynchronous operations (e.g. network requests). | boolean                                  | false                                                       |
+| value              | The currently value of the dropdown.                                                                                                                                                                                                                   | string                                   | \-                                                          |
+| onChange           | Callback triggered when the dropdown selection changes.                                                                                                                                                                                                | (newValue: string) => void               | \-                                                          |
+| onSearchTextChange | Callback triggered when the search bar text changes.                                                                                                                                                                                                   | (text: string) => void                   | \-                                                          |
+
+### List.Dropdown.Item
+
+A dropdown item in a [List.Dropdown](/api-reference/user-interface/list#list.dropdown)
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Command() {
+  return (
+          
+        
+      }
+    >
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                                                                                                                                                   | Type                                                                                | Default                         |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------- |
+| title\*  | The title displayed for the item.                                                                                                                                             | string                                                                              | \-                              |
+| value\*  | Value of the dropdown item. Make sure to assign each unique value for each item.                                                                                              | string                                                                              | \-                              |
+| icon     | An optional icon displayed for the item.                                                                                                                                      | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-                              |
+| keywords | An optional property used for providing additional indexable strings for search. When filtering the items in Raycast, the keywords will be searched in addition to the title. | string\[\]                                                                          | The title of its section if any |
+
+### List.Dropdown.Section
+
+Visually separated group of dropdown items.
+
+Use sections to group related menu items together.
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Command() {
+  return (
+          
+        
+      }
+    >
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                       | Type            | Default |
+| -------- | --------------------------------- | --------------- | ------- |
+| children | The item elements of the section. | React.ReactNode | \-      |
+| title    | Title displayed above the section | string          | \-      |
+
+### List.EmptyView
+
+A view to display when there aren't any items available. Use to greet users with a friendly message if the extension requires user input before it can show any list items e.g. when searching for a package, an article etc.
+
+Raycast provides a default `EmptyView` that will be displayed if the List component either has no children, or if it has children, but none of them match the query in the search bar. This too can be overridden by passing an empty view alongside the other `List.Item`s.
+
+Note that the `EmptyView` is _never_ displayed if the `List`'s `isLoading` property is true and the search bar is empty.
+
+![](/images/list-empty-view.png)
+
+List EmptyView illustration
+
+#### Example
+
+```
+import { useEffect, useState } from "react";
+import { List } from "@raycast/api";
+
+export default function CommandWithCustomEmptyView() {
+  const [state, setState] = useState({ searchText: "", items: [] });
+
+  useEffect(() => {
+    // perform an API call that eventually populates `items`.
+  }, [state.searchText]);
+
+  return (
+     setState((previous) => ({ ...previous, searchText: newValue }))}>
+      {state.searchText === "" && state.items.length === 0 ? (
+        
+      ) : (
+        state.items.map((item) => )
+      )}
+    
+  );
+}
+```
+
+#### Props
+
+| Prop        | Description                                                                              | Type                                                                                | Default |
+| ----------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- |
+| actions     | A reference to an [ActionPanel](/api-reference/user-interface/action-panel#actionpanel). | React.ReactNode                                                                     | \-      |
+| description | An optional description for why the empty view is shown.                                 | string                                                                              | \-      |
+| icon        | An icon displayed in the center of the EmptyView.                                        | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-      |
+| title       | The main title displayed for the Empty View.                                             | string                                                                              | \-      |
+
+### List.Item
+
+A item in the [List](/api-reference/user-interface/list#list).
+
+This is one of the foundational UI components of Raycast. A list item represents a single entity. It can be a GitHub pull request, a file, or anything else. You most likely want to perform actions on this item, so make it clear to the user what this list item is about.
+
+#### Example
+
+```
+import { Icon, List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop        | Description                                                                                                                                                                                                                          | Type                                                                                                                                                                                                | Default |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| title\*     | The main title displayed for that item, optionally with a tooltip.                                                                                                                                                                   | string or { tooltip: string; value: string }                                                                                                                                                        | \-      |
+| accessories | An optional array of [List.Item.Accessory](/api-reference/user-interface/list#list.item.accessory) items displayed on the right side in a List.Item.                                                                                 | [List.Item.Accessory](/api-reference/user-interface/list#list.item.accessory)\[\]                                                                                                                  | \-      |
+| actions     | An [ActionPanel](/api-reference/user-interface/action-panel#actionpanel) that will be updated for the selected list item.                                                                                                            | React.ReactNode                                                                                                                                                                                     | \-      |
+| detail      | The List.Item.Detail to be rendered in the right side area when the parent List is showing details and the item is selected.                                                                                                         | React.ReactNode                                                                                                                                                                                     | \-      |
+| icon        | An optional icon displayed for the list item.                                                                                                                                                                                        | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) or { tooltip: string; value: [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) } | \-      |
+| id          | ID of the item. This string is passed to the onSelectionChange handler of the [List](/api-reference/user-interface/list#list) when the item is selected. Make sure to assign each item a unique ID or a UUID will be auto generated. | string                                                                                                                                                                                              | \-      |
+| keywords    | An optional property used for providing additional indexable strings for search. When filtering the list in Raycast through the search bar, the keywords will be searched in addition to the title.                                  | string\[\]                                                                                                                                                                                          | \-      |
+| quickLook   | Optional information to preview files with Quick Look. Toggle the preview with [Action.ToggleQuickLook](/api-reference/user-interface/actions#action.togglequicklook).                                                               | { name: string; path: string }                                                                                                                                                                      | \-      |
+| subtitle    | An optional subtitle displayed next to the main title, optionally with a tooltip.                                                                                                                                                    | string or { tooltip: string; value: string }                                                                                                                                                        | \-      |
+
+### List.Item.Detail
+
+A Detail view that will be shown in the right-hand-side of the `List`.
+
+When shown, it is recommended not to show any accessories on the `List.Item` and instead bring those additional information in the `List.Item.Detail` view.
+
+![](/images/list-detail.png)
+
+List-detail illustration
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Command() {
+  return (
+    
+      
+        }
+      />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop      | Description                                                                                                                   | Type            | Default |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------- | ------- |
+| isLoading | Indicates whether a loading bar should be shown or hidden above the detail                                                    | boolean         | false   |
+| markdown  | The CommonMark string to be rendered in the right side area when the parent List is showing details and the item is selected. | string          | \-      |
+| metadata  | The List.Item.Detail.Metadata to be rendered in the bottom side of the List.Item.Detail                                       | React.ReactNode | \-      |
+
+### List.Item.Detail.Metadata
+
+A Metadata view that will be shown in the bottom side of the `List.Item.Detail`.
+
+Use it to display additional structured data about the content of the `List.Item`.
+
+#### Example
+
+Metadata + Markdown
+
+Metadata Standalone
+
+![](/images/list-detail-metadata-split.png)
+
+List Detail-metadata illustration
+
+```
+import { List } from "@raycast/api";
+
+export default function Metadata() {
+  const markdown = `
+![Illustration](https://assets.pokemon.com/assets/cms2/img/pokedex/full/001.png)
+There is a plant seed on its back right from the day this Pokémon is born. The seed slowly grows larger.
+`;
+  return (
+                
+              
+            }
+          />
+        }
+      />
+    
+  );
+}
+```
+
+![](/images/list-detail-metadata-standalone.png)
+
+List Detail-metadata illustration
+
+```
+import { List } from "@raycast/api";
+
+export default function Metadata() {
+  return (
+                
+              
+            }
+          />
+        }
+      />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop       | Description                        | Type            | Default |
+| ---------- | ---------------------------------- | --------------- | ------- |
+| children\* | The elements of the Metadata view. | React.ReactNode | \-      |
+
+### List.Item.Detail.Metadata.Label
+
+A title with, optionally, an icon and/or text to its right.
+
+![](/images/list-detail-metadata-label.png)
+
+List Detail-metadata-label illustration
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Metadata() {
+  return (
+                
+              
+            }
+          />
+        }
+      />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop    | Description                                                                                                                                                              | Type                                                                                    | Default |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ------- |
+| title\* | The title of the item.                                                                                                                                                   | string                                                                                  | \-      |
+| icon    | An icon to illustrate the value of the item.                                                                                                                             | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike)     | \-      |
+| text    | The text value of the item. Specifying color will display the text in the provided color. Defaults to [Color.SecondaryText](/api-reference/user-interface/colors#color). | string or { color: [Color](/api-reference/user-interface/colors#color); value: string } | \-      |
+
+### List.Item.Detail.Metadata.Link
+
+An item to display a link.
+
+![](/images/list-detail-metadata-link.png)
+
+List Detail-metadata-link illustration
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Metadata() {
+  return (
+                
+              
+            }
+          />
+        }
+      />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                     | Type   | Default |
+| -------- | ------------------------------- | ------ | ------- |
+| target\* | The target of the link.         | string | \-      |
+| text\*   | The text value of the item.     | string | \-      |
+| title\*  | The title shown above the item. | string | \-      |
+
+### List.Item.Detail.Metadata.TagList
+
+A list of [Tags](/api-reference/user-interface/list#list.item.detail.metadata.taglist.item) displayed in a row.
+
+![](/images/list-detail-metadata-tag-list.png)
+
+List Detail-metadata-tag-list illustration
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Metadata() {
+  return (
+                
+              
+            }
+          />
+        }
+      />
+    
+  );
+}
+```
+
+#### Props
+
+| Prop       | Description                        | Type            | Default |
+| ---------- | ---------------------------------- | --------------- | ------- |
+| children\* | The tags contained in the TagList. | React.ReactNode | \-      |
+| title\*    | The title shown above the item.    | string          | \-      |
+
+### List.Item.Detail.Metadata.TagList.Item
+
+A Tag in a `List.Item.Detail.Metadata.TagList`.
+
+#### Props
+
+| Prop   | Description                                                                                         | Type                                                                                | Default |
+| ------ | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- |
+| text\* | The text of the tag.                                                                                | string                                                                              | \-      |
+| color  | Changes the text color to the provided color and sets a transparent background with the same color. | [Color.ColorLike](/api-reference/user-interface/colors#color.colorlike)           | \-      |
+| icon   | An optional icon in front of the text of the tag.                                                   | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) | \-      |
+
+### List.Item.Detail.Metadata.Separator
+
+A metadata item that shows a separator line. Use it for grouping and visually separating metadata items.
+
+![](/images/list-detail-metadata-separator.png)
+
+List Detail-metadata-separator illustration
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Metadata() {
+  return (
+                
+              
+            }
+          />
+        }
+      />
+    
+  );
+}
+```
+
+### List.Section
+
+A group of related [List.Item](/api-reference/user-interface/list#list.item).
+
+Sections are a great way to structure your list. For example, group GitHub issues with the same status and order them by priority. This way, the user can quickly access what is most relevant.
+
+#### Example
+
+```
+import { List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
+
+#### Props
+
+| Prop     | Description                                                                            | Type            | Default |
+| -------- | -------------------------------------------------------------------------------------- | --------------- | ------- |
+| children | The [List.Item](/api-reference/user-interface/list#list.item) elements of the section. | React.ReactNode | \-      |
+| subtitle | An optional subtitle displayed next to the title of the section.                       | string          | \-      |
+| title    | Title displayed above the section.                                                     | string          | \-      |
+
+## Types
+
+### List.Item.Accessory
+
+An interface describing an accessory view in a `List.Item`.
+
+![](/images/list-item-accessories.png)
+
+List.Item accessories illustration
+
+#### Properties
+
+| Property | Description                                                                                                                                                                                                                                                                                                                                                                                                               | Type                                                                                                                                                                  |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| tag\*    | A string or Date that will be used as the label, optionally colored. The date is formatted relatively to the current time (for example new Date() will be displayed as "now", yesterday's Date will be displayed as "1d", etc.). Color changes the text color to the provided color and sets a transparent background with the same color. Defaults to [Color.SecondaryText](/api-reference/user-interface/colors#color). | string or Date or undefined or null or { color: [Color.ColorLike](/api-reference/user-interface/colors#color.colorlike); value: string or Date or undefined or null } |
+| text     | An optional text that will be used as the label, optionally colored. Color changes the text color to the provided color. Defaults to [Color.SecondaryText](/api-reference/user-interface/colors#color).                                                                                                                                                                                                                   | string or null or { color: [Color](/api-reference/user-interface/colors#color); value: string or undefined or null }                                                  |
+| date     | An optional Date that will be used as the label, optionally colored. The date is formatted relatively to the current time (for example new Date() will be displayed as "now", yesterday's Date will be displayed as "1d", etc.). Color changes the text color to the provided color. Defaults to [Color.SecondaryText](/api-reference/user-interface/colors#color).                                                       | Date or null or { color: [Color](/api-reference/user-interface/colors#color); value: Date or undefined or null }                                                      |
+| icon     | An optional [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) that will be used as the icon.                                                                                                                                                                                                                                                                                              | [Image.ImageLike](/api-reference/user-interface/icons-and-images#image.imagelike) or null                                                                            |
+| tooltip  | An optional tooltip shown when the accessory is hovered.                                                                                                                                                                                                                                                                                                                                                                  | string or null                                                                                                                                                        |
+
+#### Example
+
+```
+import { Color, Icon, List } from "@raycast/api";
+
+export default function Command() {
+  return (
+      
+    
+  );
+}
+```
