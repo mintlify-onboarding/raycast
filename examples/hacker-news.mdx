@@ -3,19 +3,23 @@ title: "Hacker News"
 description: "This example shows how to show an RSS feed as a List."
 ---
 
-The source code of the example can be found [here](https://github.com/raycast/extensions/tree/main/extensions/hacker-news#readme). You can install it [here](https://www.raycast.com/thomas/hacker-news).
+<Info>
+  The source code of the example can be found
+  [here](https://github.com/raycast/extensions/tree/main/extensions/hacker-news#readme).
+  You can install it [here](https://www.raycast.com/thomas/hacker-news).
+</Info>
 
 Who doesn't like a good morning read on [Hacker News](https://news.ycombinator.com) with a warm coffee?! In this example, we create a simple list with the top stories on the frontpage.
 
-![](/images/examples/example-hacker-news.png)
-
-Example: Read frontpage of Hacker News
+<Frame caption="Example: Read frontpage of Hacker News">
+  <img src="/images/examples/example-hacker-news.png" />
+</Frame>
 
 ## Load top stories
 
 First, let's get the latest top stories. For this we use a [RSS feed](https://hnrss.org):
 
-```
+```java
 import { Action, ActionPanel, List, showToast, Toast } from "@raycast/api";
 import { useEffect, useState } from "react";
 import Parser from "rss-parser";
@@ -53,28 +57,28 @@ export default function Command() {
 
 Breaking this down:
 
-* We use a third-party dependency to parse the RSS feed and intially the parser.
+- We use a third-party dependency to parse the RSS feed and intially the parser.
 
-* We define our command state as a TypeScript interface.
+- We define our command state as a TypeScript interface.
 
-* We use [React's useEffect](https://reactjs.org/docs/hooks-effect.html) hook to parse the RSS feed after the command did mount.
+- We use [React's useEffect](https://reactjs.org/docs/hooks-effect.html) hook to parse the RSS feed after the command did mount.
 
-* We print the top stories to the console.
+- We print the top stories to the console.
 
-* We render a list and show the loading indicator as long as we load the stories.
+- We render a list and show the loading indicator as long as we load the stories.
 
 ## Render stories
 
 Now that we got the data from Hacker News, we want to render the stories. For this, we create a new React component and a few helper functions that render a story:
 
-```
+```java
 function StoryListItem(props: { item: Parser.Item; index: number }) {
   const icon = getIcon(props.index + 1);
   const points = getPoints(props.item);
   const comments = getComments(props.item);
 
   return (
-    
+
   );
 }
 
@@ -101,18 +105,18 @@ function getPoints(item: Parser.Item) {
 
 To give the list item a nice look, we use a simple number emoji as icon, add the creator's name as subtitle and the points and comments as accessory title. Now we can render the `<StoryListItem>`:
 
-```
+```java
 export default function Command() {
   const [state, setState] = useState({});
 
   // ...
 
   return (
-    
+
       {state.items?.map((item, index) => (
-        
+
       ))}
-    
+
   );
 }
 ```
@@ -121,27 +125,27 @@ export default function Command() {
 
 When we select a story in the list, we want to be able to open it in the browser and also copy it's link so that we can share it in our watercooler Slack channel. For this, we create a new React Component:
 
-```
+```java
 function Actions(props: { item: Parser.Item }) {
   return (
-    
-      
+
+
         {props.item.link && }
         {props.item.guid && }
-      
-      
+
+
         {props.item.link && (
-          
+
         )}
-      
-    
+
+
   );
 }
 ```
 
-The component takes a story and renders an [<ActionPanel>](/api-reference/user-interface/action-panel) with our required actions. We add the actions to the `<StoryListItem>`:
+The component takes a story and renders an [`<ActionPanel>`](/api-reference/user-interface/action-panel) with our required actions. We add the actions to the `<StoryListItem>`:
 
-```
+```java
 function StoryListItem(props: { item: Parser.Item; index: number }) {
   // ...
 
@@ -156,7 +160,7 @@ function StoryListItem(props: { item: Parser.Item; index: number }) {
 
 Lastly, we want to be a good citizen and handle errors appropriately to guarantee a smooth experience. We'll show a toast whenever our network request fails:
 
-```
+```java
 export default function Command() {
   const [state, setState] = useState({});
 

@@ -3,19 +3,22 @@ title: "Todo List"
 description: "This example show how to use lists in combination with forms."
 ---
 
-The source code of the example can be found [here](https://github.com/raycast/extensions/tree/main/examples/todo-list#readme).
+<Info>
+  The source code of the example can be found
+  [here](https://github.com/raycast/extensions/tree/main/examples/todo-list#readme).
+</Info>
 
 What's an example section without a todo list?! Let's put one together in Raycast. This example will show how to render a list, navigate to a form to create a new element and update the list.
 
-![](/images/examples/example-todo-list.png)
-
-Example: A simple todo list
+<Frame caption="Example: A simple todo list">
+  <img src="/images/examples/example-todo-list.png" />
+</Frame>
 
 ## Render todo list
 
 Let's start with a set of todos and simply render them as a list in Raycast:
 
-```
+```java
 import { List } from "@raycast/api";
 import { useState } from "react";
 
@@ -31,11 +34,11 @@ export default function Command() {
   ]);
 
   return (
-    
+
       {todos.map((todo, index) => (
-        
+
       ))}
-    
+
   );
 }</todo[]>
 ```
@@ -46,7 +49,7 @@ For this we define a TypeScript interface to describe out Todo with a `title` an
 
 A static list of todos isn't that much fun. Let's create new ones with a form. For this, we create a new React component that renders the form:
 
-```
+```java
 function CreateTodoForm(props: { onCreate: (todo: Todo) => void }) {
   const { pop } = useNavigation();
 
@@ -56,11 +59,11 @@ function CreateTodoForm(props: { onCreate: (todo: Todo) => void }) {
   }
 
   return (
-          
-        
+
+
       }
     >
-    
+
 
   );
 }
@@ -75,13 +78,13 @@ function CreateTodoAction(props: { onCreate: (todo: Todo) => void }) {
 
 The `<CreateTodoForm>` shows a single text field for the title. When the form is submitted, it calls the `onCreate` callback and closes itself.
 
-![](/images/examples/example-create-todo.png)
-
-Create todo form
+<Frame caption="Create todo form">
+  <img src="/images/examples/example-create-todo.png" />
+</Frame>
 
 To use the action, we add it to the `<List>` component. This makes the action available when the list is empty which is exactly what we want to create our first todo.
 
-```
+```java
 export default function Command() {
   const [todos, setTodos] = useState<todo[]>([]);
 
@@ -91,14 +94,14 @@ export default function Command() {
   }
 
   return (
-          
-        
+
+
       }
     >
       {todos.map((todo, index) => (
-        
+
       ))}
-    
+
   );
 }</todo[]>
 ```
@@ -107,7 +110,7 @@ export default function Command() {
 
 Now that we can create new todos, we also want to make sure that we can tick off something on our todo list. For this, we create a `<ToggleTodoAction>` that we assign to the `<List.Item>`:
 
-```
+```java
 export default function Command() {
   const [todos, setTodos] = useState<todo[]>([]);
 
@@ -120,26 +123,26 @@ export default function Command() {
   }
 
   return (
-          
-        
+
+
       }
     >
       {todos.map((todo, index) => (
-        
-              
+
+
                  handleToggle(index)} />
-              
-            
+
+
           }
         />
       ))}
-    
+
   );
 }
 
 function ToggleTodoAction(props: { todo: Todo; onToggle: () => void }) {
   return (
-    
+
   );
 }</todo[]>
 ```
@@ -150,7 +153,7 @@ In this case we added the `<ToggleTodoAction>` to the list item. By doing this w
 
 Similar to toggling a todo, we also add the possibility to delete one. You can follow the same steps and create a new `<DeleteTodoAction>` and add it to the `<List.Item>`.
 
-```
+```java
 export default function Command() {
   const [todos, setTodos] = useState<todo[]>([]);
 
@@ -163,23 +166,23 @@ export default function Command() {
   }
 
   return (
-          
-        
+
+
       }
     >
       {todos.map((todo, index) => (
-        
-              
+
+
                  handleToggle(index)} />
-              
-                
+
+
                  handleDelete(index)} />
-              
-            
+
+
           }
         />
       ))}
-    
+
   );
 }
 
@@ -187,7 +190,7 @@ export default function Command() {
 
 function DeleteTodoAction(props: { onDelete: () => void }) {
   return (
-    
+
   );
 }</todo[]>
 ```
@@ -196,7 +199,7 @@ We also gave the `<DeleteTodoAction>` a keyboard shortcut. This way users can de
 
 Finally, our command looks like this:
 
-```
+```java
 import { Action, ActionPanel, Form, Icon, List, useNavigation } from "@raycast/api";
 import { useState } from "react";
 
@@ -229,23 +232,23 @@ export default function Command() {
   }
 
   return (
-          
-        
+
+
       }
     >
       {todos.map((todo, index) => (
-        
-              
+
+
                  handleToggle(index)} />
-              
-                
+
+
                  handleDelete(index)} />
-              
-            
+
+
           }
         />
       ))}
-    
+
   );
 }
 
@@ -258,11 +261,11 @@ function CreateTodoForm(props: { onCreate: (todo: Todo) => void }) {
   }
 
   return (
-          
-        
+
+
       }
     >
-    
+
 
   );
 }
@@ -276,13 +279,13 @@ function CreateTodoAction(props: { onCreate: (todo: Todo) => void }) {
 
 function ToggleTodoAction(props: { todo: Todo; onToggle: () => void }) {
   return (
-    
+
   );
 }
 
 function DeleteTodoAction(props: { onDelete: () => void }) {
   return (
-    
+
   );
 }</todo[]>
 ```
