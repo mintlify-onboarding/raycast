@@ -1,12 +1,13 @@
 ---
 title: "AI"
+description: "The AI API provides developers with seamless access to AI functionality without requiring API keys, configuration, or extra dependencies."
 ---
 
-The AI API provides developers with seamless access to AI functionality without requiring API keys, configuration, or extra dependencies.
+<Info>
+  Some users might not have access to this API. If a user doesn't have access to Raycast AI, they will be asked if they want to get access when your extension calls the AI API. If the user doesn't wish to get access, the API call will throw an error.
 
-Some users might not have access to this API. If a user doesn't have access to Raycast AI, they will be asked if they want to get access when your extension calls the AI API. If the user doesn't wish to get access, the API call will throw an error.
-
-You can check if a user has access to the API using [environment.canAccess(AI)](/api-reference/environment).
+  You can check if a user has access to the API using [environment.canAccess(AI)](/api-reference/environment).
+</Info>
 
 ## API Reference
 
@@ -16,23 +17,15 @@ Ask AI anything you want. Use this in “no-view” Commands, effects, or callba
 
 #### Signature
 
-```
+```java
 async function ask(prompt: string, options?: AskOptions): Promise & EventEmitter;
 ```
 
 #### Example
 
-Basic Usage
-
-Error handling
-
-Stream answer
-
-User Feedback
-
-Check for access
-
-```
+<Tabs>
+  <Tab title="Basic Usage">
+    ```java
 import { AI, Clipboard } from "@raycast/api";
 
 export default async function command() {
@@ -41,22 +34,20 @@ export default async function command() {
   await Clipboard.copy(answer);
 }
 ```
-
-```
-import { AI, showToast } from "@raycast/api";
-
-export default async function command() {
-  try {
-    await AI.ask("Suggest 5 jazz songs");
-  } catch (error) {
-    // Handle error here, eg: by showing a Toast
-    await showToast({
-      style: Toast.Style.Failure,
-      title: "Failed to generate answer",
-    });
-  }
-}
-```
+  </Tab>
+  <Tab title="Error handling">
+    ✌️ Here's content that's only inside the second Tab.
+  </Tab>
+  <Tab title="Stream answer">
+    💪 Here's content that's only inside the third Tab.
+  </Tab>
+  <Tab title="User Feedback">
+    💪 Here's content that's only inside the third Tab.
+  </Tab>
+  <Tab title="Check for access">
+    💪 Here's content that's only inside the third Tab.
+  </Tab>
+</Tabs>
 
 ```
 import { AI, getSelectedFinderItems, showHUD } from "@raycast/api";
@@ -118,10 +109,10 @@ export default async function main() {
 
 #### Parameters
 
-| Name     | Description | Type                                               |
-| -------- | ----------- | -------------------------------------------------- |
-| prompt\* |            | string                                             |
-| options  |            | [AI.AskOptions](/api-reference/ai#ai.askoptions) |
+| Name     | Description | Type                                             |
+| -------- | ----------- | ------------------------------------------------ |
+| prompt\* |             | string                                           |
+| options  |             | [AI.AskOptions](/api-reference/ai#ai.askoptions) |
 
 #### Return
 
@@ -151,8 +142,8 @@ type Model = "text-davinci-003" | "gpt-3.5-turbo";
 
 #### Properties
 
-| Property   | Description                                                                                                                                                                                                                                                       | Type                                               |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Property   | Description                                                                                                                                                                                                                                                       | Type                                             |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | creativity | Concrete tasks, such as fixing grammar, require less creativity while open-ended questions, such as generating ideas, require more. If a number is passed, it needs to be in the range 0-2\. For larger values, 2 will be used. For lower values, 0 will be used. | [AI.Creativity](/api-reference/ai#ai.creativity) |
 | model      | The AI model to use to answer to the prompt.                                                                                                                                                                                                                      | [AI.Model](/api-reference/ai#ai.model)           |
-| signal     | Abort signal to cancel the request.                                                                                                                                                                                                                               | AbortSignal                                        |
+| signal     | Abort signal to cancel the request.                                                                                                                                                                                                                               | AbortSignal                                      |
